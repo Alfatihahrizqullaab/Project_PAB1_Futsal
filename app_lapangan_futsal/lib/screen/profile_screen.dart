@@ -1,4 +1,4 @@
-import 'package:app_lapangan_futsal/screen/profile_page.dart';
+import 'package:app_lapangan_futsal/screen/detail_profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:app_lapangan_futsal/service/encrypt.dart';
