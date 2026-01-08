@@ -1,211 +1,168 @@
+import 'package:app_lapangan_futsal/screen/profile_page.dart';
 import 'package:flutter/material.dart';
-import 'package:app_lapangan_futsal/widget/profile_item.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:app_lapangan_futsal/service/encrypt.dart';
 
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({super.key});
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
-  //TODO: 1. Deklarasi variabel
+class _ProfileScreenState extends State<ProfileScreen> {
   String username = '';
   String email = '';
-  String phoneNumber = '';
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUser();
+  }
+
+  Future<void> _loadUser() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final encryptedUsername = prefs.getString('username');
+    final encryptedEmail = prefs.getString('email');
+
+    if (encryptedUsername != null && encryptedEmail != null) {
+      username = await EncryptionHelper.decrypt(encryptedUsername);
+      email = await EncryptionHelper.decrypt(encryptedEmail);
+    }
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  Widget _profileHeader() {
+    if (isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    return Row(
+      children: [
+        CircleAvatar(
+          radius: 35,
+          backgroundColor: Colors.blue.shade100,
+          child: Icon(Icons.person, size: 40, color: Colors.blue.shade700),
+        ),
+        SizedBox(width: 15),
+
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                username,
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 4),
+
+              Text(
+                email,
+                style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+              ),
+              SizedBox(height: 2),
+
+              // Text(
+              //   ,
+              //   style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+              // ),
+            ],
+          ),
+        ),
+
+        IconButton(
+          icon: Icon(Icons.edit, color: Colors.blue),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ProfilePage()),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  // Menu Item
+  Widget _menuItem({
+    required IconData icon,
+    required String title,
+    // VoidCallback? onTap,
+  }) {
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(title),
+      trailing: Icon(Icons.chevron_right),
+      onTap: () {},
+    );
+  }
+
+  //Logout
+  Future<void> _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+
+    if (!mounted) return;
+    Navigator.pushReplacementNamed(context, '/signin');
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Row(
+      backgroundColor: Colors.white,
+      appBar: AppBar(title: Text('Profile'), centerTitle: true),
+      body: Padding(
+        padding: EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            GestureDetector(
-              onTap: () {
-                Navigator.pop(context); // Membuat Fungsi Kembali
-              },
-              child: const Icon(Icons.arrow_back_ios, color: Colors.blue),
+            _profileHeader(),
+            SizedBox(height: 16),
+            Divider(),
+            // _menuItem(icon: Icons.lock_outline, title: 'Keamanan Dan Akun'),
+            // _menuItem(icon: Icons.location_on_outlined, title: 'Ubah Lokasi'),
+            // _menuItem(icon: Icons.favorite_border, title: 'favorite'),
+            SizedBox(height: 6),
+            // Text(
+            //   'Info Lainnya',
+            //   style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
+            // ),
+            _menuItem(
+              icon: Icons.privacy_tip_outlined,
+              title: 'Kebijakan Privasi',
             ),
-            const SizedBox(width: 12),
-            const Text(
-              'Pengaturan Profile',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue,
+            Divider(),
+            _menuItem(
+              icon: Icons.support_agent_outlined,
+              title: 'Hubungi Kami',
+            ),
+            SizedBox(height: 60,),
+
+            //Logout button
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 30),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    padding: EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: _logout,
+                  child: Text('Logout', style: TextStyle(color: Colors.white)),
+                ),
               ),
             ),
           ],
         ),
       ),
-
-      body: Stack(
-        children: [
-          Container(width: double.infinity, color: Colors.white),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  // TODO: 2. Membuat profile Header Yang berisi foto profile
-                  Align(
-                    alignment: Alignment.center,
-                    child: Padding(
-                      padding: EdgeInsets.only(top: 100 - 50),
-                      child: Stack(
-                        alignment: Alignment.bottomRight,
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.white, width: 2),
-                              shape: BoxShape.circle,
-                            ),
-                            child: CircleAvatar(
-                              radius: 70,
-                              backgroundColor: Colors.grey[200],
-                              backgroundImage: AssetImage(
-                                'assets/placeholder_image.png',
-                              ),
-                            ),
-                          ),
-
-                          //Membuat icon edit pada foto profile
-                          IconButton(
-                            onPressed: () {},
-                            icon: Icon(
-                              Icons.camera_alt,
-                              size: 30,
-                              color: Colors.grey[500],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  // TODO:; 3. Membuat informasi profile
-                  SizedBox(height: 20),
-
-                  // Divider(color: Colors.grey), // Membuat garis pemisah
-                  ProfileItem(
-                    icon: Icons.person,
-                    label: 'Username',
-                    value: username,
-                    showEditIcon: true,
-                    // onEditPressed: () {
-                    //   editField(
-                    //     title: 'Username',
-                    //     currentValue: username,
-                    //     onSave: (newValue) {
-                    //       setState(() {
-                    //         username = newValue;
-                    //       });
-                    //     },
-                    //   );
-                    // },
-                    iconColor: Colors.blue.shade300,
-                  ),
-                  SizedBox(height: 2),
-
-                  SizedBox(height: 2),
-                  ProfileItem(
-                    icon: Icons.email,
-                    label: 'Email',
-                    value: email,
-                    showEditIcon: true,
-                    // onEditPressed: () {
-                    //   debugPrint('Edit Email pressed');
-                    // },
-                    iconColor: Colors.blue.shade300,
-                  ),
-                  SizedBox(height: 2),
-
-                  SizedBox(height: 3),
-                  ProfileItem(
-                    icon: Icons.phone,
-                    label: 'Contact',
-                    value: phoneNumber,
-                    showEditIcon: true,
-                    // onEditPressed: () {
-                    //   debugPrint('Edit Phone Number pressed');
-                    // },
-                    iconColor: Colors.blue.shade300,
-                  ),
-
-                  // TODO: 4. Membuat tombol Save Changes
-                  SizedBox(height: 4),
-                  SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue.shade400,
-                        padding: EdgeInsets.symmetric(vertical: 18),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                      ),
-                      child: Text(
-                        'Save Changes',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
-
-
-
-
-// Membuat Action ketika icon edit ditekan diletakan di bawah todo 1
-  // Future<void> editField({
-  //   required String title,
-  //   required String currentValue,
-  //   required Function(String) onSave,
-  // }) async {
-  //   TextEditingController controller = TextEditingController(
-  //     text: currentValue,
-  //   );
-
-  //   await showDialog(
-  //     context: context,
-  //     builder: (_) => AlertDialog(
-  //       title: Text("Edit $title"),
-  //       content: TextField(
-  //         controller: controller,
-  //         // decoration: InputDecoration(
-  //         //   labelText: title,
-  //         //   border: OutlineInputBorder(),
-  //         // ),
-  //       ),
-  //       // Tombol Save dan Cancel
-  //       actions: [
-  //         TextButton(
-  //           onPressed: () => Navigator.pop(context),
-  //           child: const Text("Cancel"),
-  //         ),
-
-  //         ElevatedButton(
-  //           onPressed: () {
-  //             onSave(controller.text);
-  //             Navigator.pop(context);
-  //           },
-  //           child: const Text("Save"),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
