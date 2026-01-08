@@ -4,22 +4,28 @@ import 'package:flutter/material.dart';
 
 class FieldCard extends StatelessWidget {
   final futsalField field;
+  final VoidCallback? onFavoriteChanged;
 
-  const FieldCard({super.key, required this.field});
+  const FieldCard({super.key, required this.field, this.onFavoriteChanged});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(16),
       onTap: () {
-        // AKSI SAAT DU KLIK
+        // Navigasi ke DetailScreen dengan callback
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => DetailScreen(field: field)),
+          MaterialPageRoute(
+            builder: (_) => DetailScreen(
+              field: field,
+              onFavoriteChanged: onFavoriteChanged,
+            ),
+          ),
         );
       },
       child: Container(
-        margin: EdgeInsets.only(bottom: 16),
+        margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
@@ -41,7 +47,7 @@ class FieldCard extends StatelessWidget {
                 left: 0,
                 right: 0,
                 child: Container(
-                  padding: EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
@@ -57,20 +63,24 @@ class FieldCard extends StatelessWidget {
                     children: [
                       Text(
                         field.name,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Row(
                         children: [
-                          Icon(Icons.location_on, size: 14, color: Colors.blue),
-                          SizedBox(width: 4),
+                          const Icon(
+                            Icons.location_on,
+                            size: 14,
+                            color: Colors.blue,
+                          ),
+                          const SizedBox(width: 4),
                           Text(
                             '${field.location} | ${field.distance}',
-                            style: TextStyle(color: Colors.white),
+                            style: const TextStyle(color: Colors.white),
                           ),
                         ],
                       ),

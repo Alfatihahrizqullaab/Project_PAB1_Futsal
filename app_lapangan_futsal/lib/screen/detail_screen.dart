@@ -7,8 +7,9 @@ import 'package:app_lapangan_futsal/models/lapangan.dart';
 
 class DetailScreen extends StatefulWidget {
   final futsalField field;
+  final VoidCallback? onFavoriteChanged;
 
-  const DetailScreen({super.key, required this.field});
+  const DetailScreen({super.key, required this.field, this.onFavoriteChanged});
 
   @override
   State<DetailScreen> createState() => _DetailScreenState();
@@ -65,7 +66,9 @@ class _DetailScreenState extends State<DetailScreen> {
 
     await prefs.setStringList('favorite', favorite);
 
-    setState(() {});
+    //Panggil Callback
+    widget.onFavoriteChanged?.call();
+    // setState(() {});
   }
 
   // Badge and Rating

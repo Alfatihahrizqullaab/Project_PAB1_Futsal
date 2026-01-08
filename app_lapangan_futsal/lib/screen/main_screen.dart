@@ -1,40 +1,79 @@
-import 'package:app_lapangan_futsal/screen/first_page.dart';
-import 'package:app_lapangan_futsal/screen/login_screen.dart';
-import 'package:app_lapangan_futsal/screen/main_screen.dart';
-import 'package:app_lapangan_futsal/screen/signup.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:app_lapangan_futsal/screen/favorite_screen.dart';
+import 'package:app_lapangan_futsal/screen/home_screen.dart';
+import 'package:app_lapangan_futsal/screen/profile_screen.dart';
+import 'package:app_lapangan_futsal/screen/tournament_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:app_lapangan_futsal/data/lapangan_data.dart';
 
-void main() {
-  runApp(const MyApp());
+class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
+
+  @override
+  State<MainScreen> createState() => _MainScreenState();
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class _MainScreenState extends State<MainScreen> {
+  final GlobalKey<FavoriteScreenState> favoriteKey =
+      GlobalKey<FavoriteScreenState>();
+  // Deklarasi Variable
+  int _currentIndex = 0;
+  late final List<Widget> _children;
 
-  void main() async {
-    WidgetsFlutterBinding.ensureInitialized();
-    await Firebase.initializeApp();
-    runApp(MyApp());
+  @override
+  void initState() {
+    super.initState();
+    _children = [
+      HomeScreen(favoriteKey: favoriteKey),
+      TournamentScreen(),
+      FavoriteScreen(allFields: fields, key: favoriteKey), // sekarang aman
+      ProfileScreen(),
+    ];
   }
+  // final List<Widget> _children = [
+  //   HomeScreen(),
+  //   TournamentScreen(),
+  //   FavoriteScreen(allFields: fields, key: favoriteKey),
+  //   ProfileScreen(),
+  // ];
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
+    return Scaffold(
+      body: IndexedStack(index: _currentIndex, children: _children),
+      // _children[_currentIndex],
+      bottomNavigationBar: Theme(
+        data: Theme.of(context).copyWith(canvasColor: Colors.white),
+        child: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          items: [
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+
+            BottomNavigationBarItem(
+              icon: Icon(Icons.calendar_month_outlined),
+              label: 'Event',
+            ),
+
+            BottomNavigationBarItem(
+              icon: Icon(Icons.bookmark_border_outlined),
+              label: 'favorite',
+            ),
+
+            BottomNavigationBarItem(
+              icon: Icon(Icons.account_circle_outlined),
+              label: 'Profile',
+            ),
+          ],
+          selectedItemColor: Colors.blue,
+          unselectedItemColor: Colors.grey[600],
+          showSelectedLabels: true,
+          showUnselectedLabels: true,
+        ),
       ),
-      // home:MainScreen(),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const FirstPage(), 
-        '/mainscreen': (context) => const MainScreen(),
-        '/signin': (context) => const LoginPage(),
-        '/signup': (context) => const SignUp(),
-      },
     );
   }
 }

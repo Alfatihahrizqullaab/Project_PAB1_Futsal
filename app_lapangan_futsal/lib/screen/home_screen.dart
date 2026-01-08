@@ -1,11 +1,14 @@
 // import 'package:app_lapangan_futsal/widget/field_card.dart';
 import 'package:app_lapangan_futsal/data/lapangan_data.dart';
 import 'package:app_lapangan_futsal/models/lapangan.dart';
+import 'package:app_lapangan_futsal/screen/notifikasi_screen.dart';
 import 'package:app_lapangan_futsal/widget/field_card.dart';
 import 'package:flutter/material.dart';
+import 'package:app_lapangan_futsal/screen/favorite_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final GlobalKey<FavoriteScreenState> favoriteKey;
+  const HomeScreen({super.key, required this.favoriteKey});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -67,8 +70,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                   IconButton(
-                    onPressed: () {}, 
-                    icon: Icon(Icons.notifications_none, size: 28, color: Colors.blue,)
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => NotificationDemo()),
+                      );
+                    },
+                    icon: Icon(
+                      Icons.notifications_none,
+                      size: 28,
+                      color: Colors.blue,
+                    ),
                   ),
                 ],
               ),
@@ -117,7 +129,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         itemCount: filterFields.length,
                         itemBuilder: (context, index) {
                           final field = filterFields[index];
-                          return FieldCard(field: field);
+                          return FieldCard(
+                            field: field,
+                            onFavoriteChanged: () {
+                              // callback ke FavoriteScreen via GlobalKey dari MainScreen
+                              widget.favoriteKey.currentState?.loadFavorites();
+                            },
+                          );
                         },
                       ),
               ),

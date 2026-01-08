@@ -1,3 +1,4 @@
+import 'package:app_lapangan_futsal/screen/first_page.dart';
 import 'package:app_lapangan_futsal/screen/login_screen.dart';
 import 'package:app_lapangan_futsal/screen/main_screen.dart';
 import 'package:app_lapangan_futsal/screen/signup.dart';
@@ -26,9 +27,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
       ),
-      home: MainScreen(),
+      // home:MainScreen(),
       initialRoute: '/',
       routes: {
+        '/': (context) => const FirstPage(),
         '/mainscreen': (context) => const MainScreen(),
         '/signin': (context) => const LoginPage(),
         '/signup': (context) => const SignUp(),

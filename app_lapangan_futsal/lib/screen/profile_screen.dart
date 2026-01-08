@@ -167,10 +167,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onTap: () async {
                   final result = await Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          ProfilePage(username: username, email: email),
-                    ),
+                    MaterialPageRoute(builder: (_) => ProfilePage(username: username, email: email)),
                   );
                   if (result != null) {
                     setState(() {
