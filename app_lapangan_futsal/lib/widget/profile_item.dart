@@ -7,6 +7,8 @@ class ProfileItem extends StatefulWidget {
   final bool showEditIcon;
   final VoidCallback? onEditPressed;
   final Color iconColor;
+  final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onSaved;
 
   const ProfileItem({
     super.key,
@@ -15,6 +17,8 @@ class ProfileItem extends StatefulWidget {
     required this.value,
     this.showEditIcon = false,
     this.onEditPressed,
+    this.onChanged,
+    this.onSaved,
     this.iconColor = Colors.blue,
   });
 
@@ -25,19 +29,39 @@ class ProfileItem extends StatefulWidget {
 class _ProfileItemState extends State<ProfileItem> {
   // TODO: 1. Membuat variabel untuk edit mode
   bool isEditing = false;
-  late TextEditingController controller;
+  TextEditingController controller = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    controller = TextEditingController(text: widget.value);
+    controller.text = widget.value ?? '';
+  }
+
+  @override
+  void didUpdateWidget(covariant ProfileItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.value != widget.value) {
+      controller.text = widget.value ?? '';
+    }
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   // Variabel untuk Membuat tombol edit di keyboard bisa di tekan
   void finishEditing() {
+    widget.onChanged?.call(controller.text);
     setState(() {
       isEditing = false;
     });
+  }
+
+  void saveValue() {
+    widget.onSaved?.call(controller.text);
   }
 
   @override
@@ -50,18 +74,19 @@ class _ProfileItemState extends State<ProfileItem> {
           // Label di atas (username, email, phone number)
           Text(
             widget.label,
-            style: const TextStyle(fontSize: 16, color: Colors.blue),
+            style: const TextStyle(fontSize: 15, color: Colors.blue),
           ),
           const SizedBox(height: 6),
 
           // Box Putih + shadow + isi row
           Container(
             width: double.infinity,
-            height: 65,
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            // height: 40,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.grey),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black12,
@@ -73,7 +98,7 @@ class _ProfileItemState extends State<ProfileItem> {
 
             child: Row(
               children: [
-                Icon(widget.icon, color: widget.iconColor, size: 28),
+                Icon(widget.icon, color: widget.iconColor, size: 22),
                 // SizedBox(width: 12,),
                 // const Text(':', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
                 const SizedBox(width: 16),
@@ -85,8 +110,11 @@ class _ProfileItemState extends State<ProfileItem> {
                           controller: controller,
                           autofocus: true,
                           style: const TextStyle(fontSize: 16),
+                          // textAlignVertical: TextAlignVertical.center,
                           decoration: const InputDecoration(
                             border: InputBorder.none,
+                            isDense: true,
+                            // contentPadding: EdgeInsets.zero
                           ),
 
                           // Membuat tombol centang di keyboard bisa di tekan setelah selesai edit
@@ -98,11 +126,10 @@ class _ProfileItemState extends State<ProfileItem> {
                             finishEditing();
                           },
                         )
-
                       : Text(
                           controller.text,
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 15,
                             color: Colors.black87,
                           ),
                         ),
@@ -113,6 +140,7 @@ class _ProfileItemState extends State<ProfileItem> {
                   onTap: () {
                     setState(() {
                       if (isEditing) {
+                        widget.onSaved?.call(controller.text);
                         // save value
                         // kalau mau menyimpan di data  base tambhkan di sini
                       }
@@ -124,6 +152,7 @@ class _ProfileItemState extends State<ProfileItem> {
                     color: widget.showEditIcon
                         ? widget.iconColor
                         : Colors.transparent,
+                    size: 20,
                   ),
                 ),
               ],
